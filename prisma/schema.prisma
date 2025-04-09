@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model client {
+  id_client    Int           @id @default(autoincrement())
+  nom          String
+  prenom       String?
+  e_mail       String?       @unique
+  mot_de_passe String        
+  genre        String?
+  reservations reservation[]
+}
+
+model reservation {
+  id_reservation   Int          @id @default(autoincrement())
+  date_reservation DateTime     @default(now())
+  nombre_place     Int
+  paiement         Boolean
+  client           client?      @relation(fields: [id_client], references: [id_client])
+  id_client        Int?
+  place_cinema     place_cine? @relation(fields: [id_place], references: [id_place])
+  id_place         Int?
+  id_seance        Int?
+}
+
+model place_cine {
+  id_place     Int           @id @default(autoincrement())
+  numero_place Int
+  niveau      String
+  salle        salle?        @relation(fields: [id_salle], references: [id_salle])
+  id_salle     Int?
+  reservations reservation[]
+}
+
+model seance {
+  id_seance        Int      @id @default(autoincrement())
+  date_projection  DateTime
+  heure_projection DateTime
+  salle            salle?   @relation(fields: [id_salle], references: [id_salle])
+  id_salle         Int?
+  prix             Float   //
+  film             film?    @relation(fields: [id_film], references: [id_film])
+  id_film          Int?
+}
+
+model salle {
+  id_salle  Int           @id @default(autoincrement())
+  nom_salle String
+  capacite  Int
+  places    place_cine[]
+  seances   seance[]
+}
+
+model film {
+  id_film        Int       @id @default(autoincrement())
+  titre          String
+  auteur         String?
+  realisateur     String?
+  durer         Int
+  genre          String?
+  synopsis       String?
+  bande_annonce  String?
+  affiche        String?
+  date_sortie    DateTime
+  seances        seance[]
+  acteurs        acteur[]  
+}
+
+model acteur {
+  id_acteur Int    @id @default(autoincrement())
+  nom       String
+  films     film[] 
+}
+
+model admin {
+  id_admin    Int      @id @default(autoincrement())
+  nom         String
+  prenom      String?
+  e_mail      String?  @unique
+  mot_de_passe String   
+  genre       String?
+}
